@@ -22,6 +22,20 @@
   onMount(() => {
     window.addEventListener('resize', refreshScaleRatio);
     refreshScaleRatio();
+
+    // Disable zoom by wheel
+    document.addEventListener('wheel', (e) => {
+      if (e.ctrlKey) {
+        e.preventDefault();
+      }
+    }, {passive: false});
+
+    // Disable the zoom by Ctrl+Plus/Minus
+    document.addEventListener('keydown', (e) => {
+      if (e.ctrlKey && (e.key === '+' || e.key === '=' || e.key === '-')) {
+        e.preventDefault();
+      }
+    });
   });
 
   onDestroy(() => {
