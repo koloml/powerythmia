@@ -5,9 +5,9 @@
 </div>
 
 <div class="credits">
-	<a href="https://github.com/koloml">KoloMl</a> programming
+	<a href="https://koloml.itch.io/">KoloMl</a> programming
 	<br>
-	<a href="https://github.com/coolno3">coolno3</a> music & artwork
+	<a href="https://ast_r.itch.io/">ast_r</a> music & artwork
 	<br>
 	<a href="https://lazy-fox.itch.io/">LazyFox</a> fonts
 </div>
