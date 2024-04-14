@@ -4,8 +4,8 @@
   import VolumeOverlay from "../components/VolumeOverlay.svelte";
   import MenuMusicPlayer from "../components/MenuMusicPlayer.svelte";
 
-  const targetWidth = 480;
-  const targetHeight = 270;
+  const targetWidth = 256;
+  const targetHeight = 144;
 
   let scaleRatio = 1;
   let windowStyles = '';
