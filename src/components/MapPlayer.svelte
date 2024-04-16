@@ -47,6 +47,9 @@
   });
 
   onDestroy(() => {
+    window.removeEventListener('keydown', onKeyPressed);
+    window.removeEventListener('keyup', onKeyReleased);
+
     clearInterval(elapsedTimeInterval);
   });
 </script>
