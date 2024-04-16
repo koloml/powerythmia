@@ -1,8 +1,18 @@
+<script>
+  import {levelsCollection} from "$lib/levels/levels-collection.js";
+</script>
+
 <div class="level-selector">
 	<div class="level-selector-title">Level Title</div>
 	<div class="level-selector-splash">Splash Image</div>
 	<div class="level-selector-list">
-		Levels Listing
+		{#if levelsCollection.size}
+			{#each levelsCollection.entries() as [key, level]}
+				<a href="/levels/{key}">{level.name}</a>
+			{/each}
+		{:else}
+			<div>No Levels Loaded</div>
+		{/if}
 	</div>
 	<div class="level-selector-bottom">
 		<a href="/">Back</a>
