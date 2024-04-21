@@ -60,4 +60,4 @@ export const soundVolume = initializeNumericSetting('sound', 1);
 /** @type {import('svelte/store').Writable<(string|null)[]>} */
 export const keyboardBinds = initializeJsonSetting('keys', ['KeyD', 'KeyF', 'KeyJ', 'KeyK']);
 
-export const notesSpeed = initializeNumericSetting('notesSpeed', 400);
+export const notesSpeed = initializeNumericSetting('notesSpeed', 800);
