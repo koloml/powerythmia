@@ -2,7 +2,6 @@
   import 'unfonts.css';
   import {onDestroy, onMount} from "svelte";
   import VolumeOverlay from "../components/VolumeOverlay.svelte";
-  import MenuMusicPlayer from "../components/MenuMusicPlayer.svelte";
 
   const targetWidth = 256;
   const targetHeight = 144;
@@ -47,7 +46,6 @@
 	<slot>
 
 	</slot>
-	<!--<MenuMusicPlayer></MenuMusicPlayer>-->
 	<VolumeOverlay></VolumeOverlay>
 </main>
 
