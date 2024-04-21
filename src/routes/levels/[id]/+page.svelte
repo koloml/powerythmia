@@ -34,14 +34,12 @@
   })
 </script>
 
-<div>
-	{#await promisedMap}
-		<div>Loading map...</div>
-	{:then loadedMap}
-		{#if loadedMap}
-			<MapPlayer map="{loadedMap}"></MapPlayer>
-		{:else}
-			<div>Failed to load the map!</div>
-		{/if}
-	{/await}
-</div>
+{#await promisedMap}
+	<div>Loading map...</div>
+{:then loadedMap}
+	{#if loadedMap}
+		<MapPlayer map="{loadedMap}"></MapPlayer>
+	{:else}
+		<div>Failed to load the map!</div>
+	{/if}
+{/await}
