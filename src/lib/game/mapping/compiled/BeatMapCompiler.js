@@ -123,6 +123,15 @@ export class BeatMapCompiler {
           }
 
           if (targetElement instanceof Note) {
+            if (this.#barSliders[barIndex]) {
+              throw new CompilationError(
+                'Can\'t place a note inside the slider!',
+                sectionIndex,
+                rowIndex,
+                barIndex
+              );
+            }
+
             const note = new CompiledNote();
 
             note.barIndex = barIndex;
