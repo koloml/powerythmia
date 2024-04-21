@@ -5,50 +5,93 @@
   import {CompiledNote} from "$lib/game/mapping/compiled/CompiledNote.js";
   import {CompiledSlider} from "$lib/game/mapping/compiled/CompiledSlider.js";
 
-  /** @type {import('$lib/game/mapping.js').BeatMap} */
+  /**
+   * Beat map object to play. Should be preloaded before passing into the player component.
+   * @type {import('$lib/game/mapping.js').BeatMap}
+   */
   export let map;
 
   const compiledMap = new BeatMapCompiler(map).compileMap();
 
-  /** @type {Set<string>} */
+  /**
+   * Set for detecting current state of keys being held.
+   * @type {Set<string>}
+   */
   let pressedKeys = new Set([]);
-  /** @type {number} */
-  let mapHeight;
-  /** @type {HTMLElement} */
+
+  /**
+   * Container with 4 bars.
+   * @type {HTMLElement}
+   */
   let mapContainer;
-  /** @type {HTMLElement[]} */
+
+  /**
+   * Actual height of the screen. Used for calculating the speed of the notes.
+   * @type {number}
+   */
+  let mapHeight;
+
+  /**
+   * Array with bar elements inside for fast access.
+   * @type {HTMLElement[]}
+   */
   const barElements = new Array(4);
-  /** @type {(CompiledNote|CompiledSlider|undefined)[]} */
+
+  /**
+   * Lists of notes separated by bars. Useful for calculating the accuracy of key presses.
+   * @type {(CompiledNote|CompiledSlider|undefined)[][]}
+   */
   const noteQueues = new Array(4);
 
-  /** @type {number|null} */
+  /**
+   * Current active interval of rendering upcoming notes.
+   * @type {number|null}
+   */
   let renderInterval = null;
-  /** @type {number|null} */
+
+  /**
+   * Current active requested frame handle.
+   * @type {number|null}
+   */
   let refreshRequestedFrame = null;
-  /** @type {number|null} */
+
+  /**
+   * Last index of the note rendered by {@link renderFutureNotes} function.
+   * @type {number|null}
+   */
   let lastRenderedIndex = null;
 
   /**
+   * Handle the key being pressed.
    * @param {KeyboardEvent} event
    */
   function onKeyPressed(event) {
+    // Prevent logic from running multiple times while keys was being held.
     if (pressedKeys.has(event.code)) {
       return;
     }
 
-    const columnPressed = $keyboardBinds.findIndex(bind => bind === event.code);
+    const barIndex = $keyboardBinds.findIndex(keyBind => keyBind === event.code);
 
-    if (columnPressed < 0) {
+    if (barIndex < 0) {
       return;
     }
 
     pressedKeys.add(event.code);
     pressedKeys = pressedKeys;
 
-    map.playNote(0, 1);
+    const barQueue = noteQueues[barIndex] ?? [];
+    const closestNote = barQueue.length ? barQueue[0] : null;
+
+    if (closestNote) {
+      map.playNote(closestNote.typeIndex, closestNote.volume);
+    } else {
+      map.playNote(0, 1);
+    }
   }
 
   /**
+   * Handle the key being released.
    * @param {KeyboardEvent} event
    */
   function onKeyReleased(event) {
@@ -56,6 +99,9 @@
     pressedKeys = pressedKeys;
   }
 
+  /**
+   * Render the chunk of notes.
+   */
   function renderFutureNotes() {
     const currentTime = Math.floor(map.currentTime * 1000);
     const startIndex = lastRenderedIndex !== null ? lastRenderedIndex + 1 : 0;
@@ -77,7 +123,7 @@
       if (note instanceof CompiledSlider) {
         noteElement.classList.add('slider');
         noteElement.style.setProperty('--end-time', note.endTime.toString());
-	  }
+      }
 
       note.connectedElement = noteElement;
 
@@ -116,7 +162,7 @@
 
     if (refreshRequestedFrame) {
       cancelAnimationFrame(refreshRequestedFrame);
-	}
+    }
   });
 </script>
 
@@ -163,9 +209,9 @@
         bottom: calc(var(--height) / var(--speed) * (var(--time) - var(--offset-time)));
       }
 
-	  :global(.slider) {
-		height: calc(var(--height) / var(--speed) * (var(--end-time) - var(--time)) + 2px);
-	  }
+      :global(.slider) {
+        height: calc(var(--height) / var(--speed) * (var(--end-time) - var(--time)) + 2px);
+      }
     }
   }
 </style>
