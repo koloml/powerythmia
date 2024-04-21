@@ -6,10 +6,19 @@
   let fadeOutTimer = null;
   let overlayOpacity = 0;
   let selectedVolumeType = 'master';
-
+  /** @type {string} */
   let overlayStyles;
 
-  $: overlayStyles = `opacity: ${overlayOpacity.toPrecision(2)}; --master: ${$masterVolume}; --music: ${$musicVolume}; --sound: ${$soundVolume}`;
+  $: overlayStyles = (
+    "opacity: " + overlayOpacity.toPrecision(2) + ";" +
+    " --master: " + $masterVolume + ";" +
+    " --music: " + $musicVolume + ";" +
+    " --sound: " + $soundVolume + "; " +
+    // Stop interacting with the overlay if it's not active anymore
+    (overlayOpacity === 0
+      ? ' pointer-events: none;'
+      : '')
+  );
 
   function fadeOutAndResetVolumeType() {
     overlayOpacity = 0;
