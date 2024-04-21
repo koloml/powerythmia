@@ -10,4 +10,7 @@ export class CompiledNote {
 
   /** @type {number} */
   volume;
+
+  /** @type {HTMLElement|undefined} */
+  connectedElement;
 }

@@ -1,6 +1,6 @@
 <script>
   import {onDestroy, onMount} from "svelte";
-  import {keyboardBinds} from "../stores/settings.js";
+  import {keyboardBinds, notesSpeed} from "../stores/settings.js";
   import {BeatMapCompiler} from "$lib/game/mapping/compiled/BeatMapCompiler.js";
   import {CompiledNote} from "$lib/game/mapping/compiled/CompiledNote.js";
   import {CompiledSlider} from "$lib/game/mapping/compiled/CompiledSlider.js";
@@ -8,14 +8,25 @@
   /** @type {import('$lib/game/mapping.js').BeatMap} */
   export let map;
 
+  const compiledMap = new BeatMapCompiler(map).compileMap();
+
   /** @type {Set<string>} */
   let pressedKeys = new Set([]);
-
-  const compiledMap = new BeatMapCompiler(map).compileMap();
+  /** @type {number} */
+  let mapHeight;
+  /** @type {HTMLElement} */
+  let mapContainer;
   /** @type {HTMLElement[]} */
   const barElements = new Array(4);
   /** @type {(CompiledNote|CompiledSlider|undefined)[]} */
-  const latestBarNotes = new Array(4);
+  const noteQueues = new Array(4);
+
+  /** @type {number|null} */
+  let renderInterval = null;
+  /** @type {number|null} */
+  let refreshRequestedFrame = null;
+  /** @type {number|null} */
+  let lastRenderedIndex = null;
 
   /**
    * @param {KeyboardEvent} event
@@ -45,20 +56,71 @@
     pressedKeys = pressedKeys;
   }
 
+  function renderFutureNotes() {
+    const currentTime = Math.floor(map.currentTime * 1000);
+    const startIndex = lastRenderedIndex !== null ? lastRenderedIndex + 1 : 0;
+    const limitFutureTime = currentTime + $notesSpeed * 2;
+
+    for (let currentIndex = startIndex; currentIndex < compiledMap.length; currentIndex++) {
+      const note = compiledMap[currentIndex];
+
+      if (note.time >= limitFutureTime) {
+        break;
+      }
+
+      lastRenderedIndex = currentIndex;
+
+      const noteElement = document.createElement('div');
+      noteElement.classList.add('note');
+      noteElement.style.setProperty('--time', note.time.toString());
+
+      if (note instanceof CompiledSlider) {
+        noteElement.classList.add('slider');
+        noteElement.style.setProperty('--end-time', note.endTime.toString());
+	  }
+
+      note.connectedElement = noteElement;
+
+      barElements[note.barIndex].append(noteElement);
+    }
+  }
+
+  function updateOffsetOnFrame() {
+    mapContainer.style.setProperty('--offset-time', (Math.floor(map.currentTime * 1000)).toString());
+
+    refreshRequestedFrame = requestAnimationFrame(updateOffsetOnFrame);
+  }
+
   onMount(() => {
-    map.startPlaying();
+    mapHeight = mapContainer.clientHeight;
 
     window.addEventListener('keydown', onKeyPressed);
     window.addEventListener('keyup', onKeyReleased);
+
+    map.startPlaying();
+
+    renderInterval = setInterval(renderFutureNotes, $notesSpeed);
+
+    renderFutureNotes();
+
+    refreshRequestedFrame = requestAnimationFrame(updateOffsetOnFrame);
   });
 
   onDestroy(() => {
     window.removeEventListener('keydown', onKeyPressed);
     window.removeEventListener('keyup', onKeyReleased);
+
+    if (renderInterval) {
+      clearInterval(renderInterval);
+    }
+
+    if (refreshRequestedFrame) {
+      cancelAnimationFrame(refreshRequestedFrame);
+	}
   });
 </script>
 
-<div class="map">
+<div class="map" style="--speed: {$notesSpeed}; --height: {mapHeight}px;" bind:this={mapContainer}>
 	{#each $keyboardBinds as key, index}
 		<div class="bar {pressedKeys.has(key ?? '') ? ' pressed' : ''}" bind:this={barElements[index]}></div>
 	{/each}
@@ -91,6 +153,19 @@
       &.pressed:after {
         bottom: -2px;
       }
+
+      :global(.note) {
+        height: 2px;
+        background-color: white;
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: calc(var(--height) / var(--speed) * (var(--time) - var(--offset-time)));
+      }
+
+	  :global(.slider) {
+		height: calc(var(--height) / var(--speed) * (var(--end-time) - var(--time)) + 2px);
+	  }
     }
   }
 </style>
