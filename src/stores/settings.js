@@ -4,7 +4,7 @@ import {writable} from "svelte/store";
  * @param {string} settingKey
  * @param {number} defaultValue
  */
-function initializeVolumeSettingStore(settingKey, defaultValue) {
+function initializeNumericSetting(settingKey, defaultValue) {
   let initialValue;
 
   try {
@@ -13,7 +13,7 @@ function initializeVolumeSettingStore(settingKey, defaultValue) {
     initialValue = defaultValue;
   }
 
-  if (!isFinite(initialValue)) {
+  if (!isFinite(initialValue) || initialValue === null) {
     initialValue = defaultValue;
   }
 
@@ -53,9 +53,11 @@ function initializeJsonSetting(settingKey, defaultValue) {
   return settingStore;
 }
 
-export const masterVolume = initializeVolumeSettingStore('master', 1);
-export const musicVolume = initializeVolumeSettingStore('music', 1);
-export const soundVolume = initializeVolumeSettingStore('sound', 1);
+export const masterVolume = initializeNumericSetting('master', 1);
+export const musicVolume = initializeNumericSetting('music', 1);
+export const soundVolume = initializeNumericSetting('sound', 1);
 
 /** @type {import('svelte/store').Writable<(string|null)[]>} */
 export const keyboardBinds = initializeJsonSetting('keys', ['KeyD', 'KeyF', 'KeyJ', 'KeyK']);
+
+export const notesSpeed = initializeNumericSetting('notesSpeed', 400);
