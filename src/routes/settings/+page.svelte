@@ -1,5 +1,5 @@
 <script>
-  import {keyboardBinds, masterVolume, musicVolume, soundVolume} from "../../stores/settings.js";
+  import {keyboardBinds, masterVolume, musicVolume, notesSpeed, soundVolume} from "../../stores/settings.js";
 
   /** @type {string[]} */
   let boundKeys = [];
@@ -45,24 +45,28 @@
 <div class="settings">
 	<h1>Settings</h1>
 	<label>
-		<span>Master Volume</span>
+		<span>Master Volume ({Math.floor($masterVolume * 100)}%)</span>
 		<input bind:value={$masterVolume} min="0" max="1" step="0.05" type="range">
 	</label>
 	<label>
-		<span>Music Volume</span>
+		<span>Music Volume ({Math.floor($musicVolume * 100)}%)</span>
 		<input bind:value={$musicVolume} min="0" max="1" step="0.05" type="range">
 	</label>
 	<label>
-		<span>Sound Volume</span>
+		<span>Sound Volume ({Math.floor($soundVolume * 100)}%)</span>
 		<input bind:value={$soundVolume} min="0" max="1" step="0.05" type="range">
 	</label>
 	<label>
 		<span>Key Binds</span>
-		<span>
+		<span class="keys">
 			{#each boundKeys as key, index}
 				<input type="text" readonly bind:value={key} on:keydown={updateBindForIndex(index)}>
 			{/each}
 		</span>
+	</label>
+	<label>
+		<span>Note Speed ({$notesSpeed}ms)</span>
+		<input bind:value={$notesSpeed} min="250" max="1000" step="50" type="range">
 	</label>
 	<a href="/">Back</a>
 </div>
@@ -92,6 +96,17 @@
 
 	a {
 	  text-align: center;
+	}
+
+	.keys {
+	  input {
+		transform: translateY(-1px);
+
+		&:focus {
+		  background-color: white;
+		  color: black;
+		}
+	  }
 	}
   }
 </style>
