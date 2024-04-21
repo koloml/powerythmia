@@ -84,9 +84,9 @@
     const closestNote = barQueue.length ? barQueue[0] : null;
 
     if (closestNote) {
-      map.playNote(closestNote.typeIndex, closestNote.volume);
+      map.playSound(closestNote.typeIndex, closestNote.volume);
     } else {
-      map.playNote(0, 1);
+      map.playSound(0, 1);
     }
   }
 
